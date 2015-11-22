@@ -8,6 +8,8 @@
 
     using log4net;
 
+    using LyncZMachine.Client;
+
     using Microsoft.Rtc.Collaboration;
 
     public class ZMachineSession {

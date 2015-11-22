@@ -1,4 +1,4 @@
-namespace LyncZMachine {
+namespace LyncZMachine.Client {
     using System;
     using System.Collections.Generic;
     using System.IO;

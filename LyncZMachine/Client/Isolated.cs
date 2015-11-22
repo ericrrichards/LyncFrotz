@@ -1,4 +1,4 @@
-namespace LyncZMachine {
+namespace LyncZMachine.Client {
     using System;
 
     public sealed class Isolated<T> : IDisposable where T : MarshalByRefObject {

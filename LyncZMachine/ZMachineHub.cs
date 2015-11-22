@@ -7,7 +7,17 @@ namespace LyncZMachine {
 
     using Microsoft.AspNet.SignalR;
 
-    public class ZMachineHub : Hub {
+    public interface IZMachineHub {
+        void SendMessage(string id, string message);
+    }
+
+    public interface IZMachineClient {
+        void Quit();
+        void AddInput(string input);
+        void StartGame(string gameFile);
+    }
+
+    public class ZMachineHub : Hub<IZMachineClient>, IZMachineHub {
         private static readonly ILog Log = LogManager.GetLogger(MethodBase.GetCurrentMethod().DeclaringType);
         private static readonly Dictionary<string, string> _connectionMap = new Dictionary<string, string>();
         private static readonly Dictionary<string, ZMachineSession> _sessionMap = new Dictionary<string, ZMachineSession>();
