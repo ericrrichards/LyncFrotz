@@ -29,7 +29,7 @@ namespace LyncZMachine.Client {
             var fileName = Path.GetFileName(defaultName);
             if (fileName != null) {
                 fileName = fileName.Split('-').LastOrDefault();
-                return Path.Combine("Saves", PlayerName + "-" + fileName);
+                return Path.Combine(ZMachineSettings.AppDataFolder, "Saves", PlayerName + "-" + fileName);
             }
             return defaultName;
         }
@@ -130,7 +130,7 @@ namespace LyncZMachine.Client {
         }
 
         public Stream OpenExistingFile(string defaultName, string Title, string Filter) {
-            var files = Directory.GetFiles("Saves", "*.sav");
+            var files = Directory.GetFiles(Path.Combine(ZMachineSettings.AppDataFolder,"Saves"), "*.sav");
             var sb = new StringBuilder();
             foreach (var file in files) {
                 if (file.Contains(PlayerName)) {

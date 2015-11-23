@@ -42,10 +42,15 @@
             this.btnCancel = new System.Windows.Forms.Button();
             this.btnTest = new System.Windows.Forms.Button();
             this.btnSave = new System.Windows.Forms.Button();
+            this.flowLayoutPanel4 = new System.Windows.Forms.FlowLayoutPanel();
+            this.label7 = new System.Windows.Forms.Label();
+            this.lbCurrentGames = new System.Windows.Forms.ListBox();
+            this.btnAddGames = new System.Windows.Forms.Button();
             this.flowLayoutPanel1.SuspendLayout();
             ((System.ComponentModel.ISupportInitialize)(this.nudPort)).BeginInit();
             this.flowLayoutPanel2.SuspendLayout();
             this.flowLayoutPanel3.SuspendLayout();
+            this.flowLayoutPanel4.SuspendLayout();
             this.SuspendLayout();
             // 
             // flowLayoutPanel1
@@ -63,12 +68,12 @@
             this.flowLayoutPanel1.Controls.Add(this.label6);
             this.flowLayoutPanel1.Controls.Add(this.txtDomain);
             this.flowLayoutPanel1.Controls.Add(this.flowLayoutPanel3);
-            this.flowLayoutPanel1.Dock = System.Windows.Forms.DockStyle.Fill;
+            this.flowLayoutPanel1.Dock = System.Windows.Forms.DockStyle.Left;
             this.flowLayoutPanel1.FlowDirection = System.Windows.Forms.FlowDirection.TopDown;
             this.flowLayoutPanel1.Location = new System.Drawing.Point(0, 0);
             this.flowLayoutPanel1.Name = "flowLayoutPanel1";
             this.flowLayoutPanel1.Padding = new System.Windows.Forms.Padding(10, 0, 0, 0);
-            this.flowLayoutPanel1.Size = new System.Drawing.Size(347, 437);
+            this.flowLayoutPanel1.Size = new System.Drawing.Size(354, 437);
             this.flowLayoutPanel1.TabIndex = 0;
             // 
             // label1
@@ -256,11 +261,55 @@
             this.btnSave.UseVisualStyleBackColor = true;
             this.btnSave.Click += new System.EventHandler(this.btnSave_Click);
             // 
+            // flowLayoutPanel4
+            // 
+            this.flowLayoutPanel4.Controls.Add(this.label7);
+            this.flowLayoutPanel4.Controls.Add(this.lbCurrentGames);
+            this.flowLayoutPanel4.Controls.Add(this.btnAddGames);
+            this.flowLayoutPanel4.Dock = System.Windows.Forms.DockStyle.Right;
+            this.flowLayoutPanel4.FlowDirection = System.Windows.Forms.FlowDirection.TopDown;
+            this.flowLayoutPanel4.Location = new System.Drawing.Point(360, 0);
+            this.flowLayoutPanel4.Name = "flowLayoutPanel4";
+            this.flowLayoutPanel4.Size = new System.Drawing.Size(421, 437);
+            this.flowLayoutPanel4.TabIndex = 1;
+            // 
+            // label7
+            // 
+            this.label7.AutoSize = true;
+            this.label7.Location = new System.Drawing.Point(3, 0);
+            this.label7.Name = "label7";
+            this.label7.Padding = new System.Windows.Forms.Padding(0, 10, 0, 0);
+            this.label7.Size = new System.Drawing.Size(98, 27);
+            this.label7.TabIndex = 1;
+            this.label7.Text = "Current Games:";
+            // 
+            // lbCurrentGames
+            // 
+            this.lbCurrentGames.Enabled = false;
+            this.lbCurrentGames.FormattingEnabled = true;
+            this.lbCurrentGames.ItemHeight = 17;
+            this.lbCurrentGames.Location = new System.Drawing.Point(3, 30);
+            this.lbCurrentGames.MultiColumn = true;
+            this.lbCurrentGames.Name = "lbCurrentGames";
+            this.lbCurrentGames.Size = new System.Drawing.Size(406, 293);
+            this.lbCurrentGames.TabIndex = 2;
+            // 
+            // btnAddGames
+            // 
+            this.btnAddGames.Location = new System.Drawing.Point(3, 329);
+            this.btnAddGames.Name = "btnAddGames";
+            this.btnAddGames.Size = new System.Drawing.Size(144, 35);
+            this.btnAddGames.TabIndex = 3;
+            this.btnAddGames.Text = "Add Game...";
+            this.btnAddGames.UseVisualStyleBackColor = true;
+            this.btnAddGames.Click += new System.EventHandler(this.btnAddGames_Click);
+            // 
             // SetupForm
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(7F, 17F);
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
-            this.ClientSize = new System.Drawing.Size(347, 437);
+            this.ClientSize = new System.Drawing.Size(781, 437);
+            this.Controls.Add(this.flowLayoutPanel4);
             this.Controls.Add(this.flowLayoutPanel1);
             this.Font = new System.Drawing.Font("Segoe UI", 9.75F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
             this.FormBorderStyle = System.Windows.Forms.FormBorderStyle.FixedDialog;
@@ -277,6 +326,8 @@
             this.flowLayoutPanel2.PerformLayout();
             this.flowLayoutPanel3.ResumeLayout(false);
             this.flowLayoutPanel3.PerformLayout();
+            this.flowLayoutPanel4.ResumeLayout(false);
+            this.flowLayoutPanel4.PerformLayout();
             this.ResumeLayout(false);
 
         }
@@ -302,5 +353,9 @@
         private System.Windows.Forms.Button btnCancel;
         private System.Windows.Forms.Button btnSave;
         private System.Windows.Forms.Button btnTest;
+        private System.Windows.Forms.FlowLayoutPanel flowLayoutPanel4;
+        private System.Windows.Forms.Label label7;
+        private System.Windows.Forms.ListBox lbCurrentGames;
+        private System.Windows.Forms.Button btnAddGames;
     }
 }

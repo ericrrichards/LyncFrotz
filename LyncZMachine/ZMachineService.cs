@@ -33,14 +33,14 @@ namespace LyncZMachine {
         }
 
         protected override void OnStart(string[] args) {
-            if (!Directory.Exists("Saves")) {
-                Directory.CreateDirectory("Saves");
+            if (!Directory.Exists(Path.Combine(ZMachineSettings.AppDataFolder, "Saves"))) {
+                Directory.CreateDirectory(Path.Combine(ZMachineSettings.AppDataFolder, "Saves"));
             }
-            if (!Directory.Exists("Games")) {
+            if (!Directory.Exists(Path.Combine(ZMachineSettings.AppDataFolder, "Games"))) {
                 Log.Warn("No Z-Machine games included");
-                Directory.CreateDirectory("Games");
+                Directory.CreateDirectory(Path.Combine(ZMachineSettings.AppDataFolder, "Games"));
             } else {
-                if (!Directory.GetFiles("Games").Any()) {
+                if (!Directory.GetFiles(Path.Combine(ZMachineSettings.AppDataFolder, "Games")).Any()) {
                     Log.Warn("No Z-Machine games included");
                 }
             }

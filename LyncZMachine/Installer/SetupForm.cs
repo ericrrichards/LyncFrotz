@@ -3,8 +3,11 @@ using System.Windows.Forms;
 
 namespace LyncZMachine {
     using System.Configuration;
+    using System.IO;
     using System.Net;
     using System.Reflection;
+
+    using log4net;
 
     using LyncZMachine.Installer;
 
@@ -12,15 +15,33 @@ namespace LyncZMachine {
     using Microsoft.Rtc.Signaling;
 
     public partial class SetupForm : Form {
+        private static readonly ILog Log = LogManager.GetLogger(MethodBase.GetCurrentMethod().DeclaringType);
         public SetupForm() {
             InitializeComponent();
 
-            nudPort.Value = ZMachineSettings.Settings.Port;//Convert.ToDecimal(ConfigurationManager.AppSettings["Port"]);
-            txtServer.Text = ZMachineSettings.Settings.LyncServer;//ConfigurationManager.AppSettings["LyncServer"];
-            txtSip.Text = ZMachineSettings.Settings.Sip;//ConfigurationManager.AppSettings["sip"];
-            txtUsername.Text = ZMachineSettings.Settings.Username;//ConfigurationManager.AppSettings["username"];
-            txtPassword.Text = ZMachineSettings.Settings.Password;//ConfigurationManager.AppSettings["pw"];
-            txtDomain.Text = ZMachineSettings.Settings.Domain; //ConfigurationManager.AppSettings["domain"];
+            nudPort.Value = ZMachineSettings.Settings.Port;
+            txtServer.Text = ZMachineSettings.Settings.LyncServer;
+            txtSip.Text = ZMachineSettings.Settings.Sip;
+            txtUsername.Text = ZMachineSettings.Settings.Username;
+            txtPassword.Text = ZMachineSettings.Settings.Password;
+            txtDomain.Text = ZMachineSettings.Settings.Domain;
+
+            LoadGames();
+        }
+
+        private void LoadGames() {
+            try {
+                lbCurrentGames.Items.Clear();
+                if (!Directory.Exists(Path.Combine(ZMachineSettings.AppDataFolder, "Games"))) {
+                    Directory.CreateDirectory(Path.Combine(ZMachineSettings.AppDataFolder, "Games"));
+                }
+                var games = Directory.GetFiles(Path.Combine(ZMachineSettings.AppDataFolder, "Games"));
+                foreach (var game in games) {
+                    lbCurrentGames.Items.Add(Path.GetFileNameWithoutExtension(game));
+                }
+            } catch (Exception ex) {
+                Log.Error("Exception in " + ex.TargetSite.Name, ex);
+            }
         }
 
         private void cbShowPassword_CheckedChanged(object sender, EventArgs e) {
@@ -28,17 +49,6 @@ namespace LyncZMachine {
         }
 
         private void btnSave_Click(object sender, EventArgs e) {
-            //var config = ConfigurationManager.OpenExeConfiguration(ConfigurationUserLevel.None);
-
-            //config.AppSettings.Settings["Port"].Value = nudPort.Value.ToString();
-            //config.AppSettings.Settings["LyncServer"].Value = txtServer.Text;
-            //config.AppSettings.Settings["sip"].Value = txtSip.Text;
-            //config.AppSettings.Settings["username"].Value = txtUsername.Text;
-            //config.AppSettings.Settings["pw"].Value = txtPassword.Text;
-            //config.AppSettings.Settings["domain"].Value = txtDomain.Text;
-
-            //config.Save();
-            //ConfigurationManager.RefreshSection("appSettings");
 
             ZMachineSettings.Settings.Port = (int)nudPort.Value;
             ZMachineSettings.Settings.LyncServer = txtServer.Text;
@@ -104,10 +114,14 @@ namespace LyncZMachine {
 
         private void DisableSave(object sender, EventArgs e) { btnSave.Enabled = false; }
 
-        private void btnInstallService_Click(object sender, EventArgs e) {
-            
-            
-
+        private void btnAddGames_Click(object sender, EventArgs e) {
+            var picker = new OpenFileDialog();
+            if (picker.ShowDialog() == DialogResult.OK) {
+                var filename = picker.FileName;
+                File.Copy(filename, Path.Combine(ZMachineSettings.AppDataFolder, "Games", Path.GetFileName(filename)));
+                LoadGames();
+            }
         }
+
     }
 }

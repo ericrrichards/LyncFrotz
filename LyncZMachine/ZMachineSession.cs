@@ -29,7 +29,12 @@
 
             _call.StateChanged += CallOnStateChanged;
             _call.Flow.MessageReceived += FlowOnMessageReceived;
-            _gameChoices = Directory.GetFiles("Games", "*");
+            try {
+                _gameChoices = Directory.GetFiles(Path.Combine(ZMachineSettings.AppDataFolder,"Games"), "*");
+            } catch (Exception ex) {
+                Log.Error("Exception in " + ex.TargetSite.Name, ex);
+                _gameChoices = new string[0];
+            }
 
         }
 

@@ -9,6 +9,8 @@ namespace LyncZMachine {
     [Serializable]
     public class ZMachineSettings{
         private static readonly ILog Log = LogManager.GetLogger(MethodBase.GetCurrentMethod().DeclaringType);
+        public static string AppDataFolder { get { return Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.CommonApplicationData), "LyncZMachine"); } }
+
         public int Port { get; set; }
         public string LyncServer { get; set; }
         public string Sip { get; set; }
@@ -18,11 +20,11 @@ namespace LyncZMachine {
 
         private static readonly Lazy<ZMachineSettings> Lazy = new Lazy<ZMachineSettings>( ()=> {
             try {
-                if (!Directory.Exists(Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.CommonApplicationData), "LyncZMachine"))) {
-                    Directory.CreateDirectory(Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.CommonApplicationData), "LyncZMachine"));
+                if (!Directory.Exists(AppDataFolder)) {
+                    Directory.CreateDirectory(AppDataFolder);
                 }
                 var serializer = new XmlSerializer(typeof(ZMachineSettings));
-                using (var fs = new FileStream(Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.CommonApplicationData), "LyncZMachine", "settings.xml"), FileMode.Open)) {
+                using (var fs = new FileStream(Path.Combine(AppDataFolder, "settings.xml"), FileMode.Open)) {
                     var settings = serializer.Deserialize(fs) as ZMachineSettings;
                     if (settings != null) {
                         return settings;
@@ -33,12 +35,13 @@ namespace LyncZMachine {
             }
             return new ZMachineSettings();
         });
+        
 
         public static ZMachineSettings Settings { get { return Lazy.Value; } }
 
         public void Save() {
             var serializer = new XmlSerializer(typeof(ZMachineSettings));
-            using (var fs = new FileStream(Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.CommonApplicationData), "LyncZMachine", "settings.xml"), FileMode.OpenOrCreate)) {
+            using (var fs = new FileStream(Path.Combine(AppDataFolder, "settings.xml"), FileMode.OpenOrCreate)) {
                 serializer.Serialize(fs,this);
             }
         }
