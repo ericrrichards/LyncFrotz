@@ -21,9 +21,10 @@ namespace LyncZMachine {
             if (args.FirstOrDefault() == "-debug") {
                 var svc = new ZMachineService();
                 svc.RunDebug(args);
+            } else if (args.FirstOrDefault() == "-config") {
+                var setupForm = new SetupForm();
+                setupForm.ShowDialog();
             } else {
-
-
                 var servicesToRun = new ServiceBase[] {
                     new ZMachineService()
                 };
