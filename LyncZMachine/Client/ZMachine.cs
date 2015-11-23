@@ -33,7 +33,7 @@ namespace LyncZMachine.Client {
 
                 var qsData = new Dictionary<string, string>();
                 qsData["id"] = ID;
-                var url = string.Format("http://localhost:{0}/ZMachine", ConfigurationManager.AppSettings["Port"]);
+                var url = string.Format("http://localhost:{0}/ZMachine", ZMachineSettings.Settings.Port);
                 _hubConn = new HubConnection(url, qsData);
                 _proxy = _hubConn.CreateHubProxy<IZMachineHub, IZMachineClient>("ZMachineHub");
                 _proxy.SubscribeOn<string>(hub=>hub.StartGame, StartGame);

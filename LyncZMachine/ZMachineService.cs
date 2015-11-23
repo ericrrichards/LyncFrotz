@@ -2,7 +2,6 @@
 using System.ServiceProcess;
 
 namespace LyncZMachine {
-    using System.Configuration;
     using System.IO;
     using System.Linq;
     using System.Net;
@@ -51,8 +50,20 @@ namespace LyncZMachine {
             _collabPlatform = new CollaborationPlatform(clientPlatformSettings);
             _collabPlatform.EndStartup(_collabPlatform.BeginStartup(null, _collabPlatform));
 
-            _settings = new UserEndpointSettings(ConfigurationManager.AppSettings["sip"], ConfigurationManager.AppSettings["LyncServer"]) {
-                Credential = new NetworkCredential(ConfigurationManager.AppSettings["username"], ConfigurationManager.AppSettings["pw"], ConfigurationManager.AppSettings["domain"]),
+            _settings = new UserEndpointSettings(
+                ZMachineSettings.Settings.Sip,
+                ZMachineSettings.Settings.LyncServer
+                //ConfigurationManager.AppSettings["sip"], 
+                //ConfigurationManager.AppSettings["LyncServer"]
+            ) {
+                Credential = new NetworkCredential(
+                    ZMachineSettings.Settings.Username,
+                    ZMachineSettings.Settings.Password,
+                    ZMachineSettings.Settings.Domain
+                    //ConfigurationManager.AppSettings["username"], 
+                    //ConfigurationManager.AppSettings["pw"], 
+                    //ConfigurationManager.AppSettings["domain"]
+                ),
                 AutomaticPresencePublicationEnabled = true
             };
             _settings.Presence.UserPresenceState = PresenceState.UserAvailable;
@@ -63,7 +74,7 @@ namespace LyncZMachine {
 
             _endpoint.RegisterForIncomingCall<InstantMessagingCall>(GameStarted);
 
-            _webServer = WebApp.Start<Startup>(string.Format("http://+:{0}/ZMachine", ConfigurationManager.AppSettings["Port"]));
+            _webServer = WebApp.Start<Startup>(string.Format("http://+:{0}/ZMachine", ZMachineSettings.Settings.Port));
         }
 
         protected override void OnStop() {

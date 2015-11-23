@@ -89,11 +89,6 @@
             0,
             0,
             0});
-            this.nudPort.Minimum = new decimal(new int[] {
-            8000,
-            0,
-            0,
-            0});
             this.nudPort.Name = "nudPort";
             this.nudPort.Size = new System.Drawing.Size(311, 25);
             this.nudPort.TabIndex = 1;

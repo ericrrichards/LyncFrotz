@@ -103,6 +103,7 @@
     <Compile Include="Installer\SetupForm.Designer.cs">
       <DependentUpon>SetupForm.cs</DependentUpon>
     </Compile>
+    <Compile Include="Installer\ZMachineSettings.cs" />
     <Compile Include="Startup.cs" />
     <Compile Include="Client\UcmaFrotzScreen.cs" />
     <Compile Include="Client\ZMachine.cs" />
@@ -119,7 +120,9 @@
     <Compile Include="ZMachineSessionState.cs" />
   </ItemGroup>
   <ItemGroup>
-    <None Include="App.config" />
+    <None Include="App.config">
+      <SubType>Designer</SubType>
+    </None>
     <None Include="packages.config" />
   </ItemGroup>
   <ItemGroup>

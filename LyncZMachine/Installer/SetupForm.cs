@@ -15,12 +15,12 @@ namespace LyncZMachine {
         public SetupForm() {
             InitializeComponent();
 
-            nudPort.Value = Convert.ToDecimal(ConfigurationManager.AppSettings["Port"]);
-            txtServer.Text = ConfigurationManager.AppSettings["LyncServer"];
-            txtSip.Text = ConfigurationManager.AppSettings["sip"];
-            txtUsername.Text = ConfigurationManager.AppSettings["username"];
-            txtPassword.Text = ConfigurationManager.AppSettings["pw"];
-            txtDomain.Text = ConfigurationManager.AppSettings["domain"];
+            nudPort.Value = ZMachineSettings.Settings.Port;//Convert.ToDecimal(ConfigurationManager.AppSettings["Port"]);
+            txtServer.Text = ZMachineSettings.Settings.LyncServer;//ConfigurationManager.AppSettings["LyncServer"];
+            txtSip.Text = ZMachineSettings.Settings.Sip;//ConfigurationManager.AppSettings["sip"];
+            txtUsername.Text = ZMachineSettings.Settings.Username;//ConfigurationManager.AppSettings["username"];
+            txtPassword.Text = ZMachineSettings.Settings.Password;//ConfigurationManager.AppSettings["pw"];
+            txtDomain.Text = ZMachineSettings.Settings.Domain; //ConfigurationManager.AppSettings["domain"];
         }
 
         private void cbShowPassword_CheckedChanged(object sender, EventArgs e) {
@@ -28,27 +28,37 @@ namespace LyncZMachine {
         }
 
         private void btnSave_Click(object sender, EventArgs e) {
-            var config = ConfigurationManager.OpenExeConfiguration(ConfigurationUserLevel.None);
+            //var config = ConfigurationManager.OpenExeConfiguration(ConfigurationUserLevel.None);
 
-            config.AppSettings.Settings["Port"].Value = nudPort.Value.ToString();
-            config.AppSettings.Settings["LyncServer"].Value = txtServer.Text;
-            config.AppSettings.Settings["sip"].Value = txtSip.Text;
-            config.AppSettings.Settings["username"].Value = txtUsername.Text;
-            config.AppSettings.Settings["pw"].Value = txtPassword.Text;
-            config.AppSettings.Settings["domain"].Value = txtDomain.Text;
+            //config.AppSettings.Settings["Port"].Value = nudPort.Value.ToString();
+            //config.AppSettings.Settings["LyncServer"].Value = txtServer.Text;
+            //config.AppSettings.Settings["sip"].Value = txtSip.Text;
+            //config.AppSettings.Settings["username"].Value = txtUsername.Text;
+            //config.AppSettings.Settings["pw"].Value = txtPassword.Text;
+            //config.AppSettings.Settings["domain"].Value = txtDomain.Text;
 
-            config.Save();
-            ConfigurationManager.RefreshSection("appSettings");
+            //config.Save();
+            //ConfigurationManager.RefreshSection("appSettings");
+
+            ZMachineSettings.Settings.Port = (int)nudPort.Value;
+            ZMachineSettings.Settings.LyncServer = txtServer.Text;
+            ZMachineSettings.Settings.Sip = txtSip.Text;
+            ZMachineSettings.Settings.Username = txtUsername.Text;
+            ZMachineSettings.Settings.Password = txtPassword.Text;
+            ZMachineSettings.Settings.Domain = txtDomain.Text;
+
+            ZMachineSettings.Settings.Save();
 
             MessageBox.Show("Settings saved.  The Lync ZMachine service will be restarted to apply these settings", "Settings Saved");
 
             const string serviceName = "Lync Z-Machine";
 
             try {
+                MessageBox.Show(Assembly.GetExecutingAssembly().Location);
                 Cursor = Cursors.WaitCursor;
                 if (Services.IsInstalled(serviceName)) {
-                    Services.StopService(serviceName);
-                    Services.StartService(serviceName);
+                    Services.Uninstall(serviceName);
+                    Services.InstallAndStart(serviceName, serviceName, Assembly.GetExecutingAssembly().Location);
                 } else {
                     Services.InstallAndStart(serviceName, serviceName, Assembly.GetExecutingAssembly().Location);
                 }

@@ -125,6 +125,10 @@
         }
 
         private void SendGameChoiceMenu() {
+            if (_gameChoices.Length == 0) {
+                SendMessage("Sorry, we're out of games right now :-(");
+                _call.EndTerminate(_call.BeginTerminate(null, null));
+            }
             var sb = new StringBuilder("Which game would you like to play?\n");
             for (int i = 0; i < _gameChoices.Length; i++) {
                 var choice = _gameChoices[i];
