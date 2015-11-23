@@ -4,6 +4,9 @@ using System.Windows.Forms;
 namespace LyncZMachine {
     using System.Configuration;
     using System.Net;
+    using System.Reflection;
+
+    using LyncZMachine.Installer;
 
     using Microsoft.Rtc.Collaboration;
     using Microsoft.Rtc.Signaling;
@@ -37,7 +40,24 @@ namespace LyncZMachine {
             config.Save();
             ConfigurationManager.RefreshSection("appSettings");
 
-            MessageBox.Show("Settings saved.  The Lync ZMachine service must be restarted to apply these settings", "Settings Saved");
+            MessageBox.Show("Settings saved.  The Lync ZMachine service will be restarted to apply these settings", "Settings Saved");
+
+            const string serviceName = "Lync Z-Machine";
+
+            try {
+                Cursor = Cursors.WaitCursor;
+                if (Services.IsInstalled(serviceName)) {
+                    Services.StopService(serviceName);
+                    Services.StartService(serviceName);
+                } else {
+                    Services.InstallAndStart(serviceName, serviceName, Assembly.GetExecutingAssembly().Location);
+                }
+                MessageBox.Show("Service started successfully");
+            } catch (Exception ex) {
+                MessageBox.Show(ex.Message, "Error starting service");
+            } finally {
+                Cursor = Cursors.Default;
+            }
         }
 
         private void btnTest_Click(object sender, EventArgs e) {
@@ -73,5 +93,11 @@ namespace LyncZMachine {
         }
 
         private void DisableSave(object sender, EventArgs e) { btnSave.Enabled = false; }
+
+        private void btnInstallService_Click(object sender, EventArgs e) {
+            
+            
+
+        }
     }
 }

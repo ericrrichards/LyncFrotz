@@ -5,6 +5,8 @@ VisualStudioVersion = 12.0.40629.0
 MinimumVisualStudioVersion = 10.0.40219.1
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "LyncZMachine", "LyncZMachine.csproj", "{5D9E2838-1BD5-4249-9667-18E465B01B5F}"
 EndProject
+Project("{840C416C-B8F3-42BC-B0DD-F6BB14C9F8CB}") = "LyncZMachineInstaller", "..\LyncZMachineInstaller\LyncZMachineInstaller.aiproj", "{F43A9F2F-F33F-4120-ABA0-50DA095E175F}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -15,6 +17,10 @@ Global
 		{5D9E2838-1BD5-4249-9667-18E465B01B5F}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{5D9E2838-1BD5-4249-9667-18E465B01B5F}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{5D9E2838-1BD5-4249-9667-18E465B01B5F}.Release|Any CPU.Build.0 = Release|Any CPU
+		{F43A9F2F-F33F-4120-ABA0-50DA095E175F}.Debug|Any CPU.ActiveCfg = All
+		{F43A9F2F-F33F-4120-ABA0-50DA095E175F}.Debug|Any CPU.Build.0 = All
+		{F43A9F2F-F33F-4120-ABA0-50DA095E175F}.Release|Any CPU.ActiveCfg = All
+		{F43A9F2F-F33F-4120-ABA0-50DA095E175F}.Release|Any CPU.Build.0 = All
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
