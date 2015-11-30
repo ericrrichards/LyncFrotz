@@ -11,6 +11,7 @@
     using LyncZMachine.Client;
 
     using Microsoft.Rtc.Collaboration;
+    using Microsoft.Rtc.Collaboration.AsyncExtensions;
 
     public class ZMachineSession {
         private static readonly ILog Log = LogManager.GetLogger(MethodBase.GetCurrentMethod().DeclaringType);
@@ -73,32 +74,35 @@
             }
         }
 
-        public void SendMessage(string message) {
+        public async Task SendMessage(string message) {
             if (_call.State == CallState.Established) {
                 if (message.Contains("<span")) {
-                    _call.Flow.EndSendInstantMessage(_call.Flow.BeginSendInstantMessage(new ContentType("text/html"), Encoding.UTF8.GetBytes(message), null, null));
+                    await _call.Flow.SendInstantMessageAsync(new ContentType("text/html"), Encoding.UTF8.GetBytes(message));
+                    //_call.Flow.EndSendInstantMessage(_call.Flow.BeginSendInstantMessage(new ContentType("text/html"), Encoding.UTF8.GetBytes(message), null, null));
                 } else {
-                    _call.Flow.EndSendInstantMessage(_call.Flow.BeginSendInstantMessage(message, null, null));
+                    await _call.Flow.SendInstantMessageAsync(message);
+                    
+                    //_call.Flow.EndSendInstantMessage(_call.Flow.BeginSendInstantMessage(message, null, null));
                 }
             }
         }
 
-        private void FlowOnMessageReceived(object sender, InstantMessageReceivedEventArgs e) {
+        private async void FlowOnMessageReceived(object sender, InstantMessageReceivedEventArgs e) {
             switch (_state) {
                 case ZMachineSessionState.InitialMessage:
                     _state = ZMachineSessionState.PickGame;
 
-                    SendGameChoiceMenu();
+                    await SendGameChoiceMenu();
                     break;
                 case ZMachineSessionState.PickGame:
                     uint pickedOption;
                     if (uint.TryParse(e.TextBody, out pickedOption) && _gameChoices.Length >= pickedOption) {
                         _state = ZMachineSessionState.PlayingGame;
-                        SendMessage("HINT: You can resume your last session by sending \"restore\"");
+                        await SendMessage("HINT: You can resume your last session by sending \"restore\"");
                         StartFrotz(pickedOption);
                     } else {
-                        SendMessage("That's not a valid option...");
-                        SendGameChoiceMenu();
+                        await SendMessage("That's not a valid option...");
+                        await SendGameChoiceMenu();
                     }
 
                     break;
@@ -113,8 +117,8 @@
                     AddInput(e.TextBody);
                     //_frotz.AddInput(e.TextBody);
                     if (e.TextBody.Trim().Equals("y", StringComparison.InvariantCultureIgnoreCase)) {
-                        SendMessage("Thanks for playing!");
-                        _call.EndTerminate(_call.BeginTerminate(null, null));
+                        await SendMessage("Thanks for playing!");
+                        await _call.TerminateAsync();
                         ZMachineHub.SendQuit(ID);
                     } else {
                         _state = ZMachineSessionState.PlayingGame;
@@ -129,10 +133,10 @@
             ZMachineHub.StartGame(ID, _gameChoices[pickedOption - 1]);
         }
 
-        private void SendGameChoiceMenu() {
+        private async Task SendGameChoiceMenu() {
             if (_gameChoices.Length == 0) {
-                SendMessage("Sorry, we're out of games right now :-(");
-                _call.EndTerminate(_call.BeginTerminate(null, null));
+                await SendMessage("Sorry, we're out of games right now :-(");
+                await _call.TerminateAsync();
             }
             var sb = new StringBuilder("Which game would you like to play?\n");
             for (int i = 0; i < _gameChoices.Length; i++) {
@@ -140,7 +144,7 @@
                 sb.AppendFormat("{0})  {1}\n", i + 1, Path.GetFileNameWithoutExtension(choice));
             }
 
-            SendMessage(sb.ToString());
+            await SendMessage(sb.ToString());
         }
     }
     

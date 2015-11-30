@@ -12,6 +12,7 @@ namespace LyncZMachine {
     using LyncZMachine.Installer;
 
     using Microsoft.Rtc.Collaboration;
+    using Microsoft.Rtc.Collaboration.AsyncExtensions;
     using Microsoft.Rtc.Signaling;
 
     public partial class SetupForm : Form {
@@ -80,12 +81,12 @@ namespace LyncZMachine {
             }
         }
 
-        private void btnTest_Click(object sender, EventArgs e) {
+        private async void btnTest_Click(object sender, EventArgs e) {
             try {
                 Cursor = Cursors.WaitCursor;
                 var clientPlatformSettings = new ClientPlatformSettings("LyncZMachine", SipTransportType.Tls);
                 var collabPlatform = new CollaborationPlatform(clientPlatformSettings);
-                collabPlatform.EndStartup(collabPlatform.BeginStartup(null, collabPlatform));
+                await collabPlatform.StartupAsync();
 
                 var settings = new UserEndpointSettings(txtSip.Text, txtServer.Text) {
                     Credential = new NetworkCredential(txtUsername.Text, txtPassword.Text, txtDomain.Text),
@@ -94,12 +95,12 @@ namespace LyncZMachine {
 
                 var endpoint = new UserEndpoint(collabPlatform, settings);
 
-                endpoint.EndEstablish(endpoint.BeginEstablish(null, null));
+                await endpoint.EstablishAsync();
                 btnSave.Enabled = true;
                 MessageBox.Show("Connected successfully to " + txtServer.Text + " as " + txtSip.Text);
                 try {
-                    endpoint.EndTerminate(endpoint.BeginTerminate(null, null));
-                    collabPlatform.EndShutdown(collabPlatform.BeginShutdown(null, null));
+                    await endpoint.TerminateAsync();
+                    await collabPlatform.ShutdownAsync();
                 } catch (Exception ex) {
                     MessageBox.Show(ex.Message, "An Error Occurred", MessageBoxButtons.OK, MessageBoxIcon.Exclamation);
                 }

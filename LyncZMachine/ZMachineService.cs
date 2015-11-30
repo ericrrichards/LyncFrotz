@@ -11,6 +11,7 @@ namespace LyncZMachine {
 
     using Microsoft.Owin.Hosting;
     using Microsoft.Rtc.Collaboration;
+    using Microsoft.Rtc.Collaboration.AsyncExtensions;
     using Microsoft.Rtc.Collaboration.Presence;
     using Microsoft.Rtc.Signaling;
 
@@ -32,7 +33,7 @@ namespace LyncZMachine {
             OnStop();
         }
 
-        protected override void OnStart(string[] args) {
+        protected override async void OnStart(string[] args) {
             if (!Directory.Exists(Path.Combine(ZMachineSettings.AppDataFolder, "Saves"))) {
                 Directory.CreateDirectory(Path.Combine(ZMachineSettings.AppDataFolder, "Saves"));
             }
@@ -48,7 +49,7 @@ namespace LyncZMachine {
 
             var clientPlatformSettings = new ClientPlatformSettings("LyncZMachine", SipTransportType.Tls);
             _collabPlatform = new CollaborationPlatform(clientPlatformSettings);
-            _collabPlatform.EndStartup(_collabPlatform.BeginStartup(null, _collabPlatform));
+            await _collabPlatform.StartupAsync();
 
             _settings = new UserEndpointSettings(
                 ZMachineSettings.Settings.Sip,
@@ -69,25 +70,24 @@ namespace LyncZMachine {
             _settings.Presence.UserPresenceState = PresenceState.UserAvailable;
 
             _endpoint = new UserEndpoint(_collabPlatform, _settings);
-
-            _endpoint.EndEstablish(_endpoint.BeginEstablish(null, null));
+            await _endpoint.EstablishAsync();
 
             _endpoint.RegisterForIncomingCall<InstantMessagingCall>(GameStarted);
 
             _webServer = WebApp.Start<Startup>(string.Format("http://+:{0}/ZMachine", ZMachineSettings.Settings.Port));
         }
 
-        protected override void OnStop() {
-            _endpoint.EndTerminate(_endpoint.BeginTerminate(null, null));
-            _collabPlatform.EndShutdown(_collabPlatform.BeginShutdown(null, null));
+        protected override async void OnStop() {
+            await _endpoint.TerminateAsync();
+            await _collabPlatform.ShutdownAsync();
             _webServer.Dispose();
         }
 
-        private void GameStarted(object sender, CallReceivedEventArgs<InstantMessagingCall> e) {
+        private static async void GameStarted(object sender, CallReceivedEventArgs<InstantMessagingCall> e) {
             Log.Debug("Call received from " + e.RemoteParticipant.Uri);
             var call = e.Call;
             call.StateChanged += (o, args) => Log.DebugFormat("{0} -> {1}", e.RemoteParticipant.Uri, args.State);
-            call.EndAccept(call.BeginAccept(null, null));
+            await call.AcceptAsync();
             var session = new ZMachineSession(call);
             session.Start();
         }
