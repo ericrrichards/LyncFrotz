@@ -25,6 +25,17 @@ namespace LyncZMachine.Client {
         private bool Running { get; set; }
         private bool DrainQueueAndQuit { get; set; }
 
+        internal static bool FrotzWaitingForInput { get; set; }
+
+        internal static event EventHandler<string> InputReceived;
+
+        private void OnInputReceived(string e) {
+            var handler = InputReceived;
+            if (handler != null) {
+                handler(this, e);
+            }
+        }
+
         public ZMachine() {
             _queuedMessages = new Queue<string>();
 
@@ -96,7 +107,12 @@ namespace LyncZMachine.Client {
         }
 
         public void AddInput(string input) {
-            _queuedMessages.Enqueue(input);
+            if (!FrotzWaitingForInput) {
+                _queuedMessages.Enqueue(input);
+            } else {
+                FrotzWaitingForInput = false;
+                OnInputReceived(input);
+            }
         }
 
         public void StartGame(string filename) {
@@ -128,5 +144,6 @@ namespace LyncZMachine.Client {
             _hubConn.Stop();
         }
 
+        
     }
 }

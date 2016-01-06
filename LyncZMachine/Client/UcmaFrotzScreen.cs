@@ -5,6 +5,7 @@ namespace LyncZMachine.Client {
     using System.Linq;
     using System.Reflection;
     using System.Text;
+    using System.Threading;
 
     using Frotz.Blorb;
     using Frotz.Screen;
@@ -130,23 +131,82 @@ namespace LyncZMachine.Client {
         }
 
         public Stream OpenExistingFile(string defaultName, string Title, string Filter) {
-            var files = Directory.GetFiles(Path.Combine(ZMachineSettings.AppDataFolder,"Saves"), "*.sav");
-            var sb = new StringBuilder();
-            foreach (var file in files) {
-                if (file.Contains(PlayerName)) {
-                    sb.AppendLine(file);
-                }
-            }
-            OnMessageReady(sb.ToString());
-
-
             Log.DebugFormat("OpenExistingFile: [{0},{1},{2}]", defaultName, Title, Filter);
-            return new FileStream(DefaultSaveFile(defaultName), FileMode.Open);
+            try {
+
+                var files = Directory.GetFiles(Path.Combine(ZMachineSettings.AppDataFolder, "Saves"), "*.sav");
+                var sb = new StringBuilder("Save files:\n");
+                for (int i = 0; i < files.Length; i++) {
+                    var file = files[i];
+                    if (file.Contains(PlayerName)) {
+                        sb.AppendLine(string.Format("{0}) {1}", i + 1, Path.GetFileName(file)));
+                    }
+                }
+                ZMachine.FrotzWaitingForInput = true;
+
+                int pickedOption = -1;
+                var handle = new ManualResetEvent(false);
+                EventHandler<string> handler = (sender, s) => {
+                    Log.Debug("InputReceived: " + s);
+                    if (!int.TryParse(s, out pickedOption)) {
+                        Log.Warn("bad input string: " + s);
+                        pickedOption = -1;
+                    }
+                    handle.Set();
+                };
+
+                ZMachine.InputReceived += handler;
+                OnMessageReady(sb.ToString());
+                handle.WaitOne();
+                ZMachine.InputReceived -= handler;
+
+                if (pickedOption <= 0 || pickedOption > files.Length) {
+                    Log.Warn("Invalid option: " + pickedOption);
+                    OnMessageReady("Sorry, I don't grok that");
+                    return null;
+                }
+                var path = files[pickedOption - 1];
+                Log.Debug(path);
+                OnMessageReady("Loading " + path);
+                return new FileStream(path, FileMode.Open);
+            } catch (Exception ex) {
+                Log.Error("Exception in " + ex.TargetSite.Name, ex);
+                return null; // Maybe this cancels?
+            }
+            //return new FileStream(DefaultSaveFile(defaultName), FileMode.Open);
         }
+
+        
 
         public Stream OpenNewOrExistingFile(string defaultName, string Title, string Filter, string defaultExtension) {
             Log.DebugFormat("OpenNewOrExistingFile: [{0},{1},{2},{3}]", defaultName, Title, Filter, defaultExtension);
-            return new FileStream(DefaultSaveFile(defaultName), FileMode.OpenOrCreate);
+            try {
+                string filename = Guid.NewGuid().ToString();
+
+                ZMachine.FrotzWaitingForInput = true;
+                var handle = new ManualResetEvent(false);
+                EventHandler<string> handler = (sender, s) => {
+                    Log.Debug("InputReceived: " + s);
+                    filename = s.Trim();
+                    handle.Set();
+                };
+
+                ZMachine.InputReceived += handler;
+                OnMessageReady("Enter a name for this save file:");
+                handle.WaitOne();
+                ZMachine.InputReceived -= handler;
+
+                var path = Path.Combine(ZMachineSettings.AppDataFolder, "Saves", PlayerName + "-" + filename + defaultExtension);
+                Log.Debug("Saving to " + path);
+                OnMessageReady("Saving to " + PlayerName + "-" + filename + defaultExtension);
+
+                return new FileStream(path, FileMode.OpenOrCreate);
+            } catch (Exception ex) {
+                Log.Error("Exception in " + ex.TargetSite.Name, ex);
+                return null;
+            }
+
+            //return new FileStream(DefaultSaveFile(defaultName), FileMode.OpenOrCreate);
         }
 
 

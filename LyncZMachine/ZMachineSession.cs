@@ -60,9 +60,9 @@
                     break;
                 case ZMachineSessionState.PlayingGame:
                     if (e.State == CallState.Terminated) {
-                        AddInput("save");
-                        AddInput("quit");
-                        AddInput("y");
+                        //AddInput("save");
+                        //AddInput("quit");
+                        //AddInput("y");
                         ZMachineHub.SendQuit(ID);
                         Task.Delay(3000).ContinueWith(task => _engine.Dispose());
                     }
