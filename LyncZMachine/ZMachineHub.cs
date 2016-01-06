@@ -1,5 +1,6 @@
 namespace LyncZMachine {
     using System.Collections.Generic;
+    using System.Linq;
     using System.Reflection;
     using System.Threading.Tasks;
 
@@ -8,7 +9,7 @@ namespace LyncZMachine {
     using Microsoft.AspNet.SignalR;
 
     public interface IZMachineHub {
-        void SendMessage(string id, string message);
+        Task SendMessage(string id, string message);
     }
 
     public interface IZMachineClient {
@@ -22,6 +23,8 @@ namespace LyncZMachine {
         private static readonly Dictionary<string, string> _connectionMap = new Dictionary<string, string>();
         private static readonly Dictionary<string, ZMachineSession> _sessionMap = new Dictionary<string, ZMachineSession>();
 
+        public static bool ClientsConnected { get { return _connectionMap.Count > 0; } }
+
         public static void RegisterSession(ZMachineSession session) {
             _sessionMap[session.ID] = session;
         }
@@ -34,6 +37,8 @@ namespace LyncZMachine {
 
         public override Task OnDisconnected(bool stopCalled) {
             Log.Debug("ZMachineHub.OnDisconnected " + Context.ConnectionId);
+            _connectionMap.Remove(Context.QueryString["id"]);
+
             return base.OnDisconnected(stopCalled);
         }
 
@@ -49,10 +54,10 @@ namespace LyncZMachine {
             GlobalHost.ConnectionManager.GetHubContext("ZMachineHub").Clients.Client(_connectionMap[id]).StartGame(gameChoice);
         }
 
-        public void SendMessage(string id, string message) {
+        public async Task SendMessage(string id, string message) {
             Log.DebugFormat("ZMachineHub.SendMessage id={0} message={1}", id, message);
             var session = _sessionMap[id];
-            session.SendMessage(message);
+            await session.SendMessage(message);
         }
 
         public static void DisconnectAll() {

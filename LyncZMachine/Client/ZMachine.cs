@@ -2,10 +2,13 @@ namespace LyncZMachine.Client {
     using System;
     using System.Collections.Generic;
     using System.Configuration;
+    using System.Linq;
     using System.Reflection;
     using System.Threading;
+    using System.Xml.Linq;
 
     using log4net;
+    using log4net.Config;
 
     using Microsoft.AspNet.SignalR.Client;
 
@@ -24,6 +27,28 @@ namespace LyncZMachine.Client {
 
         public ZMachine() {
             _queuedMessages = new Queue<string>();
+
+
+        }
+
+        private void SetupLogging() {
+            try {
+                var configfile = XDocument.Load(AppDomain.CurrentDomain.SetupInformation.ConfigurationFile);
+                var loggingConfig = configfile.Descendants("log4net").FirstOrDefault();
+                if (loggingConfig != null) {
+                    var appender = loggingConfig.Descendants("appender").FirstOrDefault(e => e.Attribute("name").Value == "DebugAppender");
+                    if (appender != null) {
+                        var fileElem = appender.Descendants("file").FirstOrDefault();
+                        if (fileElem != null) {
+                            fileElem.Attribute("value").SetValue(string.Format("logs/{0}_", ID));
+                        }
+                    }
+                }
+
+                XmlConfigurator.Configure(loggingConfig.ToXmlElement());
+            } catch (Exception ex) {
+                Console.WriteLine(ex.Message + "\n" + ex.StackTrace);
+            }
         }
 
         public void Run() {
@@ -31,22 +56,24 @@ namespace LyncZMachine.Client {
                 ID = AppDomain.CurrentDomain.GetData("id").ToString();
                 PlayerName = AppDomain.CurrentDomain.GetData("player").ToString();
 
+
+
                 var qsData = new Dictionary<string, string>();
                 qsData["id"] = ID;
                 var url = string.Format("http://localhost:{0}/ZMachine", ZMachineSettings.Settings.Port);
                 _hubConn = new HubConnection(url, qsData);
                 _proxy = _hubConn.CreateHubProxy<IZMachineHub, IZMachineClient>("ZMachineHub");
-                _proxy.SubscribeOn<string>(hub=>hub.StartGame, StartGame);
-                _proxy.SubscribeOn<string>(hub=>hub.AddInput, AddInput);
-                _proxy.SubscribeOn(hub=>hub.Quit, Quit);
+                _proxy.SubscribeOn<string>(hub => hub.StartGame, StartGame);
+                _proxy.SubscribeOn<string>(hub => hub.AddInput, AddInput);
+                _proxy.SubscribeOn(hub => hub.Quit, Quit);
                 _hubConn.Start().Wait();
+
+                SetupLogging();
+
 
                 _frotz = new UcmaFrotzScreen(PlayerName);
                 Frotz.os_.SetScreen(_frotz);
                 _frotz.MessageReady += (o, s) => { SendMessage(s); };
-
-
-
             } catch (AggregateException aex) {
                 var ex1 = aex.InnerException;
                 Log.Error("Exception in " + ex1.TargetSite.Name, ex1);
@@ -61,7 +88,11 @@ namespace LyncZMachine.Client {
         }
 
         private void SendMessage(string s) {
-            _proxy.Call(hub=>hub.SendMessage( ID, s));
+            try {
+                _proxy.Call(hub => hub.SendMessage(ID, s));
+            } catch (Exception ex) {
+                Log.Error("Exception in " + ex.TargetSite.Name, ex);
+            }
         }
 
         public void AddInput(string input) {

@@ -6,6 +6,7 @@ namespace LyncZMachine {
     using System.Linq;
     using System.Net;
     using System.Reflection;
+    using System.Threading;
 
     using log4net;
 
@@ -80,6 +81,11 @@ namespace LyncZMachine {
         protected override async void OnStop() {
             await _endpoint.TerminateAsync();
             await _collabPlatform.ShutdownAsync();
+
+            var start = DateTime.Now;
+            while (ZMachineHub.ClientsConnected && (DateTime.Now - start).TotalMinutes < 2) {
+                Thread.Sleep(100);
+            }
             _webServer.Dispose();
         }
 
